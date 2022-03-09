@@ -1,0 +1,23 @@
+FROM node:16-alpine
+
+# Update everything and install needed dependencies
+USER root
+
+# Install all needed dependencies
+RUN apk --update add --virtual build-dependencies python3 build-base ca-certificates && \
+	npm_config_user=root npm install -g lerna
+
+RUN apk add --update graphicsmagick tzdata tini su-exec git
+
+WORKDIR /data
+
+COPY . .
+RUN rm -rf node_modules packages/*/node_modules packages/*/dist docker
+
+RUN npm install --production --loglevel notice
+RUN npx lerna bootstrap --hoist
+RUN npm run build
+
+
+RUN npm_config_user=root npm install -g full-icu
+ENV NODE_ICU_DATA /usr/local/lib/node_modules/full-icu

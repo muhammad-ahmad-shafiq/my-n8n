@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - "5678:5678"
+    depends_on:
+      - database
+    working_dir: /data
+    env_file:
+      - .env
+    entrypoint: ./docker-entrypoint.sh
+
+  database:
+    image: postgres:13.4
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "35005:5432"
+    environment:
+      POSTGRES_PASSWORD: my_n8n
+      POSTGRES_USER: my_n8n
+      POSTGRES_DB: my_n8n_production
+
+volumes:
+  pg_data:
